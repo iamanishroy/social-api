@@ -3,9 +3,10 @@
   "devCommand": "bun run dev",
   "installCommand": "bun install",
   "framework": null,
+  "bunVersion": "1.x",
   "functions": {
     "api/**/*.ts": {
-      "runtime": "vercel-bun@latest"
+      "runtime": "bun"
     }
   },
   "rewrites": [
@@ -15,4 +16,3 @@
     }
   ]
 }
-
