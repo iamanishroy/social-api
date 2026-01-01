@@ -1,8 +1,11 @@
 import { serve } from 'bun';
 import { Hono } from 'hono';
 import app from './api/index';
+import tweetHtml from './api/tweet-html';
+import tweetSvg from './api/tweet-svg';
+import { env } from './src/config/env';
 
-const requestedPort = Number(process.env.PORT || 7000);
+const requestedPort = env.port;
 
 /**
  * Checks if a port is available by attempting to bind to it
@@ -45,6 +48,10 @@ async function startServer(): Promise<void> {
     const rootApp = new Hono();
     rootApp.route('/api', app);
     
+    // Mount tweet HTML and SVG endpoints at root level
+    rootApp.route('/tweet', tweetHtml);
+    rootApp.route('/tweet-svg', tweetSvg);
+    
     // Root endpoint redirect/info
     rootApp.get('/', (c) => {
       return c.json({
@@ -52,20 +59,35 @@ async function startServer(): Promise<void> {
         version: '1.0.0',
         endpoints: {
           health: '/api',
-          tweet: '/api/tweet?url=<tweet-url>',
+          tweetJson: '/api/tweet?url=<tweet-url>',
+          tweetHtml: '/tweet?url=<tweet-url>',
+          tweetSvg: '/tweet-svg?url=<tweet-url>',
         },
       });
     });
     
-    serve({
+    const server = serve({
       fetch: rootApp.fetch,
       port,
     });
     
+    // Graceful shutdown
+    const shutdown = () => {
+      console.log('\n🛑 Shutting down gracefully...');
+      server.stop();
+      process.exit(0);
+    };
+
+    process.on('SIGTERM', shutdown);
+    process.on('SIGINT', shutdown);
+    
     console.log(`🚀 Server is running on port ${port}`);
+    console.log(`📍 Environment: ${env.nodeEnv}`);
     console.log(`📍 API available at http://localhost:${port}/api`);
     console.log(`   Health check: http://localhost:${port}/api`);
-    console.log(`   Tweet endpoint: http://localhost:${port}/api/tweet?url=<tweet-url>`);
+    console.log(`   Tweet JSON: http://localhost:${port}/api/tweet?url=<tweet-url>`);
+    console.log(`   Tweet HTML: http://localhost:${port}/tweet?url=<tweet-url>`);
+    console.log(`   Tweet SVG: http://localhost:${port}/tweet-svg?url=<tweet-url>`);
   } catch (error) {
     console.error('❌ Failed to start server:', error instanceof Error ? error.message : error);
     console.error(`   Please free up port ${requestedPort} or set a different PORT environment variable.`);

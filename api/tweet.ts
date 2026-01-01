@@ -1,5 +1,7 @@
 import { Hono } from 'hono';
 import { getTweetData, InvalidUrlError, TweetNotFoundError, ApiError, TimeoutError } from '../src';
+import { cacheControl } from '../src/middleware';
+import { env } from '../src/config/env';
 
 const app = new Hono();
 
@@ -11,7 +13,7 @@ const app = new Hono();
  * 
  * Example: /api/tweet?url=https://x.com/username/status/1234567890
  */
-app.get('/', async (c) => {
+app.get('/', cacheControl({ maxAge: env.cacheMaxAge, public: true }), async (c) => {
   const url = c.req.query('url');
 
   if (!url) {
