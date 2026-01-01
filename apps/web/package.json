@@ -10,11 +10,13 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@social-api/twitter": "workspace:*",
+    "firebase": "^12.7.0",
+    "flamecache": "^1.0.2",
+    "hono": "^4.5.0",
     "next": "16.1.1",
     "react": "19.2.3",
-    "react-dom": "19.2.3",
-    "hono": "^4.5.0",
-    "@social-api/twitter": "workspace:*"
+    "react-dom": "19.2.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

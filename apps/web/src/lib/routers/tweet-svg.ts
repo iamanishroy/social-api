@@ -1,5 +1,6 @@
 import { Hono } from 'hono';
-import { getTweetData, InvalidUrlError, TweetNotFoundError, ApiError, TimeoutError } from '@social-api/twitter';
+import { TweetData, InvalidUrlError, TweetNotFoundError, ApiError, TimeoutError } from '@social-api/twitter';
+import { getCachedTweetData } from '../services/twitter';
 import { cacheControl } from '../middleware';
 import { env } from '../config/env';
 
@@ -34,13 +35,6 @@ function formatRelativeTime(dateString: string): string {
   return `${Math.floor(diffInSeconds / 31536000)}y`;
 }
 
-/**
- * Truncates text to fit within SVG
- */
-function truncateText(text: string, maxLength: number = 200): string {
-  if (text.length <= maxLength) return text;
-  return text.substring(0, maxLength - 3) + '...';
-}
 
 /**
  * Wraps text for SVG
@@ -73,7 +67,7 @@ function wrapText(text: string, maxWidth: number, fontSize: number = 15): string
 /**
  * Generates SVG for a tweet
  */
-function generateTweetSVG(tweet: Awaited<ReturnType<typeof getTweetData>>): string {
+function generateTweetSVG(tweet: TweetData): string {
   const width = 600;
   const padding = 20;
   const avatarSize = 40;
@@ -219,32 +213,33 @@ app.get('/', cacheControl({ maxAge: env.cacheMaxAge, public: true }), async (c) 
   }
 
   try {
-    const tweet = await getTweetData(url);
+    const tweet = await getCachedTweetData(url);
     const svg = generateTweetSVG(tweet);
     return c.html(svg, 200, {
       'Content-Type': 'image/svg+xml',
     });
-  } catch (error) {
+  } catch (error: any) {
     let errorMessage = 'An error occurred';
     let statusCode = 500;
 
-    if (error instanceof InvalidUrlError) {
+    if (error instanceof InvalidUrlError || error.name === 'InvalidUrlError' || error.code === 'INVALID_URL') {
       errorMessage = error.message;
       statusCode = 400;
-    } else if (error instanceof TweetNotFoundError) {
+    } else if (error instanceof TweetNotFoundError || error.name === 'TweetNotFoundError' || error.code === 'TWEET_NOT_FOUND') {
       errorMessage = error.message;
       statusCode = 404;
-    } else if (error instanceof TimeoutError) {
+    } else if (error instanceof TimeoutError || error.name === 'TimeoutError' || error.code === 'TIMEOUT') {
       errorMessage = error.message;
       statusCode = 504;
-    } else if (error instanceof ApiError) {
+    } else if (error instanceof ApiError || error.name === 'ApiError' || error.code === 'API_ERROR') {
       errorMessage = error.message;
       statusCode = error.statusCode || 500;
     }
 
     const errorSvg = `<svg width="600" height="200" xmlns="http://www.w3.org/2000/svg">
       <rect width="600" height="200" fill="#ffffff" rx="12"/>
-      <text x="300" y="100" text-anchor="middle" font-family="system-ui" font-size="16" fill="#ef4444">${escapeSvg(errorMessage)}</text>
+      <text x="300" y="80" text-anchor="middle" font-family="system-ui" font-size="16" fill="#ef4444">${escapeSvg(errorMessage)}</text>
+      <text x="300" y="110" text-anchor="middle" font-family="system-ui" font-size="12" fill="#666666">ID: ${(c as any).get('requestId') || 'unknown'}</text>
     </svg>`;
 
     return c.html(errorSvg, statusCode as 400 | 404 | 500 | 504, {

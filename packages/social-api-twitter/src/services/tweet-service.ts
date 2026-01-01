@@ -71,8 +71,8 @@ export class TweetService {
         verified: syndicationData.user.verified,
       },
       metrics: {
-        likes: syndicationData.favorite_count,
-        retweets: syndicationData.retweet_count,
+        likes: syndicationData.favorite_count || 0,
+        retweets: syndicationData.retweet_count || 0,
         replies: syndicationData.reply_count || 0,
         quotes: syndicationData.quote_count || 0,
       },

@@ -1,5 +1,6 @@
 import { Hono } from 'hono';
-import { getTweetData, InvalidUrlError, TweetNotFoundError, ApiError, TimeoutError } from '@social-api/twitter';
+import { InvalidUrlError, TweetNotFoundError, ApiError, TimeoutError } from '@social-api/twitter';
+import { getCachedTweetData } from '../services/twitter';
 import { cacheControl } from '../middleware';
 import { env } from '../config/env';
 
@@ -28,14 +29,14 @@ app.get('/', cacheControl({ maxAge: env.cacheMaxAge, public: true }), async (c) 
   }
 
   try {
-    const tweet = await getTweetData(url);
+    const tweet = await getCachedTweetData(url);
 
     return c.json({
       success: true,
       data: tweet,
     });
-  } catch (error) {
-    if (error instanceof InvalidUrlError) {
+  } catch (error: any) {
+    if (error instanceof InvalidUrlError || error.name === 'InvalidUrlError' || error.code === 'INVALID_URL') {
       return c.json(
         {
           success: false,
@@ -46,7 +47,7 @@ app.get('/', cacheControl({ maxAge: env.cacheMaxAge, public: true }), async (c) 
       );
     }
 
-    if (error instanceof TweetNotFoundError) {
+    if (error instanceof TweetNotFoundError || error.name === 'TweetNotFoundError' || error.code === 'TWEET_NOT_FOUND') {
       return c.json(
         {
           success: false,
@@ -57,7 +58,7 @@ app.get('/', cacheControl({ maxAge: env.cacheMaxAge, public: true }), async (c) 
       );
     }
 
-    if (error instanceof TimeoutError) {
+    if (error instanceof TimeoutError || error.name === 'TimeoutError' || error.code === 'TIMEOUT') {
       return c.json(
         {
           success: false,
@@ -68,8 +69,7 @@ app.get('/', cacheControl({ maxAge: env.cacheMaxAge, public: true }), async (c) 
       );
     }
 
-    if (error instanceof ApiError) {
-      // Hono expects specific status codes, default to 500 if invalid
+    if (error instanceof ApiError || error.name === 'ApiError' || error.code === 'API_ERROR') {
       const statusCode = error.statusCode && error.statusCode >= 400 && error.statusCode < 600 
         ? (error.statusCode as 400 | 401 | 403 | 404 | 500 | 502 | 503 | 504)
         : 500;
