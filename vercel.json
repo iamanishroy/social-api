@@ -1,0 +1,18 @@
+{
+  "buildCommand": "bun install",
+  "devCommand": "bun run dev",
+  "installCommand": "bun install",
+  "framework": null,
+  "functions": {
+    "api/**/*.ts": {
+      "runtime": "vercel-bun@latest"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/[...path]"
+    }
+  ]
+}
+
