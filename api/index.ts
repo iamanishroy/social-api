@@ -1,5 +1,7 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
+import fs from 'fs/promises';
+import path from 'path';
 import tweet from '../src/routers/tweet';
 import tweetHtml from '../src/routers/tweet-html';
 import tweetSvg from '../src/routers/tweet-svg';
@@ -35,6 +37,19 @@ app.get('/health', cacheControl({ maxAge: 60, public: true }), (c) => {
     timestamp: new Date().toISOString(),
   });
 });
+
+// Serve landing page from static file
+app.get('/', cacheControl({ maxAge: 3600, public: true }), async (c) => {
+  try {
+    const htmlPath = path.resolve(process.cwd(), 'public/index.html');
+    const html = await fs.readFile(htmlPath, 'utf-8');
+    return c.html(html);
+  } catch (e) {
+    return c.text('Social API - Documentation', 200);
+  }
+});
+
+app.get('/index.html', (c) => c.redirect('/'));
 
 // Mount endpoints
 app.route('/api/tweet', tweet);
