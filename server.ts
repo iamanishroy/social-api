@@ -1,8 +1,6 @@
 import { serve } from 'bun';
 import { Hono } from 'hono';
 import app from './api/index';
-import tweetHtml from './api/tweet-html';
-import tweetSvg from './api/tweet-svg';
 import { env } from './src/config/env';
 
 const requestedPort = env.port;
@@ -44,30 +42,8 @@ async function startServer(): Promise<void> {
       console.warn(`⚠️  Port ${requestedPort} is in use, using port ${port} instead`);
     }
     
-    // Create a root app that mounts the API at /api
-    const rootApp = new Hono();
-    rootApp.route('/api', app);
-    
-    // Mount tweet HTML and SVG endpoints at root level
-    rootApp.route('/tweet', tweetHtml);
-    rootApp.route('/tweet-svg', tweetSvg);
-    
-    // Root endpoint redirect/info
-    rootApp.get('/', (c) => {
-      return c.json({
-        message: 'Twitter Tweet API',
-        version: '1.0.0',
-        endpoints: {
-          health: '/api',
-          tweetJson: '/api/tweet?url=<tweet-url>',
-          tweetHtml: '/tweet?url=<tweet-url>',
-          tweetSvg: '/tweet-svg?url=<tweet-url>',
-        },
-      });
-    });
-    
     const server = serve({
-      fetch: rootApp.fetch,
+      fetch: app.fetch,
       port,
     });
     

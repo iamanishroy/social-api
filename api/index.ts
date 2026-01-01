@@ -1,6 +1,8 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import tweet from './tweet';
+import tweetHtml from './tweet-html';
+import tweetSvg from './tweet-svg';
 import { logger, rateLimit, securityHeaders, cacheControl } from '../src/middleware';
 import { env } from '../src/config/env';
 
@@ -24,23 +26,20 @@ app.use('/*', cors({
   credentials: true,
 }));
 
-// Health check endpoint with caching
-app.get('/', cacheControl({ maxAge: 60, public: true }), (c) => {
+// Health check endpoint (JSON)
+app.get('/health', cacheControl({ maxAge: 60, public: true }), (c) => {
   return c.json({
     status: 'ok',
     service: 'Twitter Tweet API',
     version: '1.0.0',
-    environment: env.nodeEnv,
     timestamp: new Date().toISOString(),
-    endpoints: {
-      tweet: '/api/tweet?url=<tweet-url>',
-      health: '/api',
-    },
   });
 });
 
-// Mount tweet endpoint
-app.route('/tweet', tweet);
+// Mount endpoints
+app.route('/api/tweet', tweet);
+app.route('/tweet', tweetHtml);
+app.route('/tweet-svg', tweetSvg);
 
 // 404 handler for unmatched routes
 app.notFound((c) => {

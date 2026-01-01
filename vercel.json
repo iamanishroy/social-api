@@ -3,7 +3,7 @@
   "bunVersion": "1.x",
   "rewrites": [
     {
-      "source": "/api/(.*)",
+      "source": "/(api|tweet|tweet-svg)(.*)",
       "destination": "/api/[...path]"
     }
   ]
