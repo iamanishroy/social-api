@@ -129,8 +129,8 @@ function generateTweetSVG(tweet: Awaited<ReturnType<typeof getTweetData>>): stri
     </text>
     
     <!-- X Logo -->
-    <g transform="translate(${width - padding - 16}, ${y - 12})">
-      <path fill="#536471" opacity="0.4" d="m236 0h46l-101 115 118 156h-92.6l-72.5-94.8-83 94.8h-46l107-123-113-148h94.9l65.5 86.6zm-16.1 244h25.5l-165-218h-27.4z"/>
+    <g transform="translate(${width - padding - 20}, ${padding + 4})">
+      <path fill="#536471" opacity="0.4" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" transform="scale(0.8)"/>
     </g>
     
     <!-- Tweet text -->
@@ -150,32 +150,42 @@ function generateTweetSVG(tweet: Awaited<ReturnType<typeof getTweetData>>): stri
   if (firstMedia && (firstMedia.url || firstMedia.thumbnail)) {
     const mediaUrl = firstMedia.url || firstMedia.thumbnail || '';
     svgContent += `
-      <rect x="${contentX}" y="${y}" width="${maxTextWidth}" height="${mediaHeight}" fill="#f0f0f0" rx="12"/>
-      <text x="${contentX + maxTextWidth / 2}" y="${y + mediaHeight / 2}" text-anchor="middle" font-family="system-ui" font-size="14" fill="#536471">Media</text>
+      <defs>
+        <clipPath id="media-clip">
+          <rect x="${contentX}" y="${y}" width="${maxTextWidth}" height="${mediaHeight}" rx="12"/>
+        </clipPath>
+      </defs>
+      <image href="${mediaUrl}" x="${contentX}" y="${y}" width="${maxTextWidth}" height="${mediaHeight}" preserveAspectRatio="xMidYMid slice" clip-path="url(#media-clip)"/>
     `;
     y += mediaHeight + 10;
   }
 
   // Actions
-  y += 10;
+  y += 5;
+  svgContent += `
+    <!-- Separator Line -->
+    <line x1="${contentX}" y1="${y}" x2="${width - padding}" y2="${y}" stroke="#eff3f4" stroke-width="1"/>
+  `;
+  y += 15;
   svgContent += `
     <!-- Like button -->
     <g transform="translate(${contentX}, ${y})">
-      <circle cx="9" cy="9" r="8" fill="none" stroke="#536471" stroke-width="1.5"/>
-      <path d="M9 6c0-1.5-1.5-3-3-3S3 4.5 3 6c0 3 6 6 6 6s6-3 6-6c0-1.5-1.5-3-3-3s-3 1.5-3 3" fill="none" stroke="#536471" stroke-width="1.5"/>
-      <text x="24" y="12" font-family="system-ui" font-size="14" fill="#536471">${formatCount(tweet.metrics.likes)}</text>
+      <g transform="translate(9, 10)">
+        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="none" stroke="#536471" stroke-width="1.5" transform="scale(0.65) translate(-12, -12)"/>
+      </g>
+      <text x="24" y="15" font-family="system-ui, -apple-system, sans-serif" font-size="14" fill="#536471">${formatCount(tweet.metrics.likes)}</text>
     </g>
     
     <!-- Share button -->
     <g transform="translate(${contentX + 100}, ${y})">
-      <g transform="translate(9, 9)">
+      <g transform="translate(9, 10)">
         <path d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316a3 3 0 105.367-2.684l-6.632-3.316m0 0a3 3 0 105.368 2.684l-6.632-3.316m0 0v-2.684" fill="none" stroke="#536471" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" transform="scale(0.65) translate(-12, -12)"/>
       </g>
-      <text x="24" y="12" font-family="system-ui" font-size="14" fill="#536471">Share</text>
+      <text x="24" y="15" font-family="system-ui, -apple-system, sans-serif" font-size="14" fill="#536471">Share</text>
     </g>
   `;
 
-  return `<svg width="${width}" height="${totalHeight}" xmlns="http://www.w3.org/2000/svg">
+  return `<svg width="${width}" height="${totalHeight}" viewBox="0 0 ${width} ${totalHeight}" xmlns="http://www.w3.org/2000/svg">
     ${svgContent}
   </svg>`;
 }
