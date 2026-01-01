@@ -238,31 +238,41 @@ app.use('/*', cors({
 }));
 
 // Health check endpoint (JSON)
-app.get('/health', cacheControl({ maxAge: 60, public: true }), (c) => {
+const healthHandler = (c: any) => {
   return c.json({
     status: 'ok',
     service: 'Twitter Tweet API',
     version: '1.0.0',
     timestamp: new Date().toISOString(),
   });
-});
+};
+
+app.get('/health', cacheControl({ maxAge: 60, public: true }), healthHandler);
+app.get('/api/health', cacheControl({ maxAge: 60, public: true }), healthHandler);
 
 // Root landing page
-app.get('/', cacheControl({ maxAge: 3600, public: true }), (c) => {
+const landingHandler = (c: any) => {
   return c.html(LANDING_HTML);
-});
+};
 
+app.get('/', cacheControl({ maxAge: 3600, public: true }), landingHandler);
+app.get('/api', cacheControl({ maxAge: 3600, public: true }), landingHandler);
 app.get('/index.html', (c) => c.redirect('/'));
 
-// Mount endpoints
+// Mount JSON API
 app.route('/api/tweet', tweet);
+app.route('/api/tweet-json', tweet);
+
+// Mount HTML View
 app.route('/tweet', tweetHtml);
+app.route('/tweet-html', tweetHtml);
+app.route('/api/tweet-html', tweetHtml);
+
+// Mount SVG View
 app.route('/tweet-svg', tweetSvg);
+app.route('/api/tweet-svg', tweetSvg);
 
-// Fallback for /api to health check
-app.get('/api', (c) => c.redirect('/health'));
-
-// 404 handler for unmatched routes
+// 404 handler
 app.notFound((c) => {
   const requestId = (c as any).get?.('requestId') || 'unknown';
   return c.json({
@@ -270,8 +280,10 @@ app.notFound((c) => {
     message: 'Route ' + c.req.path + ' not found',
     requestId,
     availableRoutes: {
-      health: '/api',
-      tweet: '/api/tweet?url=<tweet-url>',
+      health: '/api/health',
+      tweetJson: '/api/tweet?url=<tweet-url>',
+      tweetHtml: '/api/tweet-html?url=<tweet-url>',
+      tweetSvg: '/api/tweet-svg?url=<tweet-url>',
     },
   }, 404);
 });

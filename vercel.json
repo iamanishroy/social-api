@@ -3,7 +3,11 @@
   "bunVersion": "1.x",
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/(api|tweet|health|tweet-svg)(.*)",
+      "destination": "/api"
+    },
+    {
+      "source": "/",
       "destination": "/api"
     }
   ]
