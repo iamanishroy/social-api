@@ -1,0 +1,18 @@
+{
+  "version": 2,
+  "bunVersion": "1.x",
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api"
+    },
+    {
+      "source": "/tweet(.*)",
+      "destination": "/api"
+    },
+    {
+      "source": "/health",
+      "destination": "/api"
+    }
+  ]
+}

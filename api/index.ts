@@ -1,8 +1,8 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
-import tweet from './tweet';
-import tweetHtml from './tweet-html';
-import tweetSvg from './tweet-svg';
+import tweet from '../src/routers/tweet';
+import tweetHtml from '../src/routers/tweet-html';
+import tweetSvg from '../src/routers/tweet-svg';
 import { logger, rateLimit, securityHeaders, cacheControl } from '../src/middleware';
 import { env } from '../src/config/env';
 
@@ -40,6 +40,9 @@ app.get('/health', cacheControl({ maxAge: 60, public: true }), (c) => {
 app.route('/api/tweet', tweet);
 app.route('/tweet', tweetHtml);
 app.route('/tweet-svg', tweetSvg);
+
+// Fallback for /api to health check
+app.get('/api', (c) => c.redirect('/health'));
 
 // 404 handler for unmatched routes
 app.notFound((c) => {

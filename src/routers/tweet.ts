@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
-import { getTweetData, InvalidUrlError, TweetNotFoundError, ApiError, TimeoutError } from '../src';
-import { cacheControl } from '../src/middleware';
-import { env } from '../src/config/env';
+import { getTweetData, InvalidUrlError, TweetNotFoundError, ApiError, TimeoutError } from '../index';
+import { cacheControl } from '../middleware';
+import { env } from '../config/env';
 
 const app = new Hono();
 
