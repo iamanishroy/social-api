@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import { getTweetData, InvalidUrlError, TweetNotFoundError, ApiError, TimeoutError } from '../index';
+import { getTweetData, InvalidUrlError, TweetNotFoundError, ApiError, TimeoutError } from '@social-api/twitter';
 import { cacheControl } from '../middleware';
 import { env } from '../config/env';
 
