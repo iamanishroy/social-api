@@ -1,4 +1,4 @@
-import { getTweetData as fetchTweetData } from '@social-api/twitter';
+import { getTweetData as fetchTweetData, type TweetData } from '@social-api/twitter';
 import { cache, getTweetCacheKey } from '../cache';
 
 /**
@@ -26,7 +26,7 @@ export async function getCachedTweetData(url: string) {
   const cacheKey = getTweetCacheKey(url);
   try {
     // Cache for 6 hours (21600 seconds) by default for the raw data
-    return await cache.wrap(
+    return await cache.wrap<TweetData>(
       cacheKey,
       async () => {
         const data = await fetchTweetData(url);
