@@ -17,9 +17,22 @@ export const cache = createCache({
 
 /**
  * Helper to generate cache keys for tweets.
- * Sanitize the URL/ID because Firebase keys cannot contain: . $ # [ ] /
+ * Extracts username and status ID from URL to create a safe, readable key.
+ * Format: tweet:username:statusId
  */
 export const getTweetCacheKey = (urlOrId: string) => {
-  const sanitized = urlOrId.replace(/[.$#[\]/]/g, '_');
-  return `tweet:${sanitized}`;
+  // Try to extract username and id from Twitter/X URL
+  // Handles: twitter.com, x.com, and subdomains like mobile.twitter.com
+  const match = urlOrId.match(/(?:^|https?:\/\/)(?:[^\/ \?]+\.)?(?:twitter\.com|x\.com)\/([^\/ \?]+)\/status\/(\d+)/i);
+  
+  if (match) {
+    const [, username, id] = match;
+    return `tweet:${username}:${id}`;
+  }
+
+  // Fallback: sanitize if it's not a standard URL
+  return `tweet:${urlOrId.replace(/[.$#[\]/]/g, '_')}`;
 };
+
+
+

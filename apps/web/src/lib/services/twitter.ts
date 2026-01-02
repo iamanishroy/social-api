@@ -26,14 +26,14 @@ export async function getCachedTweetData(url: string) {
   const cacheKey = getTweetCacheKey(url);
   try {
     // Cache for 6 hours (21600 seconds) by default for the raw data
-    // return await cache.wrap(
-      // cacheKey,
-      // async () => {
+    return await cache.wrap(
+      cacheKey,
+      async () => {
         const data = await fetchTweetData(url);
         return cleanObject(data); // Strip undefineds before caching
-      // },
-      // 21600 
-    // );
+      },
+      21600 
+    );
   } catch {
     // Fallback to direct fetch if cache fails
     return await fetchTweetData(url);
