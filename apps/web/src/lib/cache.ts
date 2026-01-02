@@ -7,19 +7,9 @@ const config = {
   projectId: process.env.FIREBASE_PROJECT_ID,
 };
 
-const missingVars = Object.entries(config)
-  .filter(([, value]) => !value)
-  .map(([key]) => key);
-
-if (missingVars.length > 0) {
-  console.warn(`[Cache] Missing environment variables: ${missingVars.join(', ')}. Cache will be disabled.`);
-} else {
-  console.log('[Cache] Initializing with Firebase Project:', config.projectId);
-}
-
 /**
  * Cache instance using Flamecache (backed by Firebase Realtime Database)
- * This provides a Redis-like caching layer for the Edge Runtime.
+ * Currently DISABLED
  */
 export const cache = createCache({
   firebase: {
@@ -28,9 +18,10 @@ export const cache = createCache({
     projectId: config.projectId || '',
   },
   rootPath: 'social-api',
-  ttl: Number(process.env.CACHE_TTL) || 3600, // Default 1 hour
-  disableCache: missingVars.length > 0,
+  ttl: Number(process.env.CACHE_TTL) || 3600,
+  disableCache: true, // Forced disabled
 });
+
 
 
 /**

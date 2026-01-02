@@ -51,17 +51,15 @@ export async function getCachedTweetData(url: string) {
     cache.wrap<TweetData>(
       cacheKey,
       async () => {
-        console.log('[Cache] Cache miss for:', cacheKey);
         const data = await fetchTweetData(url);
-        return cleanObject(data); // Strip undefineds before caching
+        return cleanObject(data); 
       },
       21600 
     ),
     3000, // 3 second timeout for cache operations
     async () => {
       console.log('[Cache] Falling back to direct fetch for:', url);
-      return await fetchTweetData(url);
-    }
+    return await fetchTweetData(url);
+  }
   );
 }
-
