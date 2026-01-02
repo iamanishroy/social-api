@@ -22,20 +22,46 @@ function cleanObject(obj: any): any {
   return obj;
 }
 
+/**
+ * Helper to wrap a promise with a timeout
+ */
+async function withTimeout<T>(promise: Promise<T>, ms: number, fallback: () => Promise<T>): Promise<T> {
+  let timeoutId: any;
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => {
+      reject(new Error(`Operation timed out after ${ms}ms`));
+    }, ms);
+  });
+
+  try {
+    return await Promise.race([promise, timeoutPromise]);
+  } catch (error) {
+    console.warn(`[Cache] Cache operation failed or timed out. Falling back to direct fetch.`, error);
+    return await fallback();
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
 export async function getCachedTweetData(url: string) {
   const cacheKey = getTweetCacheKey(url);
-  try {
-    // Cache for 6 hours (21600 seconds) by default for the raw data
-    return await cache.wrap<TweetData>(
+  
+  // Try to use cache with a 3-second timeout
+  return await withTimeout(
+    cache.wrap<TweetData>(
       cacheKey,
       async () => {
+        console.log('[Cache] Cache miss for:', cacheKey);
         const data = await fetchTweetData(url);
         return cleanObject(data); // Strip undefineds before caching
       },
       21600 
-    );
-  } catch {
-    // Fallback to direct fetch if cache fails
-    return await fetchTweetData(url);
-  }
+    ),
+    3000, // 3 second timeout for cache operations
+    async () => {
+      console.log('[Cache] Falling back to direct fetch for:', url);
+      return await fetchTweetData(url);
+    }
+  );
 }
+
