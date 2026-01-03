@@ -175,17 +175,44 @@ GET /api
 
 Returns service status and available endpoints.
 
-#### Fetch Tweet Data
+#### Fetch Tweet HTML Render
 ```
-GET /api/tweet?url=<tweet-url>
+GET /api/tweet-html?url=<tweet-url>&theme=<theme>&hide_media=<true|false>&font_size=<size>&width=<width>
 ```
+
+Returns a beautiful, clean HTML render of the tweet with CSS, optimized for embedding.
 
 **Query Parameters:**
 - `url` (required): The tweet URL to fetch
+- `theme` (optional): `light`, `dark`, `dim`, or `black` (Default: `light`)
+- `accent_color` (optional): Custom hero color (e.g., `#ff0000`, Default: `#1d9bf0`)
+- `hide_media` (optional): Set to `true` to hide images and videos
+- `hide_metrics` (optional): Set to `true` to hide engagement counts
+- `hide_footer` (optional): Set to `true` to hide the entire footer
+- `hide_border` (optional): Set to `true` to remove the outer card border
+- `hide_timestamp` (optional): Set to `true` to hide the date/time line
+- `bg_transparent` (optional): Set to `true` for transparent background
+- `font_size` (optional): `small`, `medium`, or `large` (Default: `medium`)
+- `width` (optional): Custom CSS width, e.g., `500px` (Default: `550px`)
 
 **Example:**
 ```bash
-curl "http://localhost:3000/api/tweet?url=https://x.com/username/status/1234567890"
+curl "http://localhost:3000/api/tweet-html?url=https://x.com/username/status/123&theme=dim"
+```
+
+#### Fetch Tweet SVG Snapshot
+```
+GET /api/tweet-svg?url=<tweet-url>
+```
+
+Returns a high-quality vector SVG capture of the tweet.
+
+**Query Parameters:**
+- `url` (required): The tweet URL to snapshot
+
+**Example:**
+```bash
+curl "http://localhost:3000/api/tweet-svg?url=https://x.com/username/status/123"
 ```
 
 **Success Response (200):**

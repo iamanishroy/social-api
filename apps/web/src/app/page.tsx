@@ -36,8 +36,66 @@ export default function LandingPage() {
               <Endpoint
                 method="GET"
                 path="/api/tweet-html"
-                description="Returns a clean HTML render of the tweet."
-                example="https://social-api.anishroy.com/api/tweet-html?url={TWEET_URL}"
+                description="Returns a clean HTML render of the tweet with CSS."
+                example="https://social-api.anishroy.com/api/tweet-html?url={TWEET_URL}&theme=dim"
+                params={[
+                  {
+                    name: "url",
+                    type: "query",
+                    description: "The full Twitter/X status URL (Required).",
+                  },
+                  {
+                    name: "theme",
+                    type: "query",
+                    description:
+                      "Optional: light, dark, dim, or black (Default: light).",
+                  },
+                  {
+                    name: "accent_color",
+                    type: "query",
+                    description: "Optional: Hero and badge color (e.g., #1d9bf0).",
+                  },
+                  {
+                    name: "hide_media",
+                    type: "query",
+                    description: "Optional: Set to true to hide images and videos.",
+                  },
+                  {
+                    name: "hide_metrics",
+                    type: "query",
+                    description: "Optional: Set to true to hide engagement counts.",
+                  },
+                  {
+                    name: "hide_footer",
+                    type: "query",
+                    description: "Optional: Set to true to hide the entire footer.",
+                  },
+                  {
+                    name: "hide_border",
+                    type: "query",
+                    description: "Optional: Set to true to remove card border.",
+                  },
+                  {
+                    name: "hide_timestamp",
+                    type: "query",
+                    description: "Optional: Set to true to hide the date line.",
+                  },
+                  {
+                    name: "bg_transparent",
+                    type: "query",
+                    description: "Optional: Set to true for transparency.",
+                  },
+                  {
+                    name: "font_size",
+                    type: "query",
+                    description: "Optional: small, medium, or large.",
+                  },
+                  {
+                    name: "width",
+                    type: "query",
+                    description: "Optional: Custom width, e.g., 550px.",
+                  },
+                ]}
               />
 
               <Endpoint
